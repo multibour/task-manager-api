@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator').default;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const moment = require('moment');
 
 //--- User ---//
 
@@ -18,21 +19,17 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         validate(val){
             if (!validator.isEmail(val))
-                throw new Error('');
+                throw new Error('Given email address is not valid.');
         }
     },
-    age: {
-        type: Number,
-        default: 0,
-        validate(val){
-            if (val < 0)
-                throw new Error('no negative.');
-        }
+    dateOfBirth: {
+        type: Date,
     },
     password: {
         type: String,
         trim: true,
         minLength: 7,
+        required: true,
         validate(val){
             if (val.toLowerCase().includes('password'))
                 throw new Error('A password cannot contain the word \'password\'.');
@@ -60,9 +57,7 @@ userSchema.virtual('tasks', {
 userSchema.statics.findByCredentials = async (email, password) => {
     const user = await User.findOne({ email });
 
-    if (!user)
-        throw new Error('Unable to login. E-mail or password is incorrect.');
-    else if (!bcrypt.compareSync(password, user.password))
+    if (!user || !bcrypt.compareSync(password, user.password))
         throw new Error('Unable to login. E-mail or password is incorrect.');
 
     return user;
@@ -88,13 +83,13 @@ userSchema.methods.toJSON = function(){
 };
 
 // hash the 'password' field before the User document is saved
-userSchema.pre('save', function(doneSignal){
+userSchema.pre('save', function(nextFunction){
     if (this.isModified('password')) {
         const salt = bcrypt.genSaltSync(10);
         this.password = bcrypt.hashSync(this.password, salt);
     }
 
-    doneSignal();
+    nextFunction();
 });
 
 // delete all Task documents whose 'author' field is the id of the User document before its removal
@@ -102,6 +97,7 @@ userSchema.pre('remove', async function(nextFunction){
     await Task.deleteMany({
         author: this._id
     });
+
     nextFunction();
 });
 

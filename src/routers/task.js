@@ -6,8 +6,8 @@ const authenticate = require('./auth');
 
 router.post('/tasks', authenticate, async (req, res) =>{
     const task = new models.Task({
-        ...req.body,
-        author: req['user']._id
+        ...req.body, // unpack object
+        author: req.user._id
     });
 
     try {
@@ -23,7 +23,7 @@ router.post('/tasks', authenticate, async (req, res) =>{
 // GET /tasks?limit=20&skip=40
 // GET /tasks?sortBy=createdAt:descending
 router.get('/tasks', authenticate, async (req, res) => {
-    const match = { author: req['user'] };
+    const match = { author: req.user };
     if (req.query.completed)
         match.completed = req.query.completed === 'true';
 
@@ -50,7 +50,7 @@ router.get('/tasks/:id', authenticate, async (req, res) => {
     try{
         const task = await models.Task.findOne({
             _id: req.params.id,
-            author: req['user']._id
+            author: req.user._id
         });
 
         if (!task)
@@ -71,7 +71,7 @@ router.patch('/tasks/:id', authenticate, async (req, res) => {
     try {
         const task = await models.Task.findOneAndUpdate({
             _id: req.params.id,
-            author: req['user']
+            author: req.user
         }, req.body, {
             new: true,
             runValidators: true
@@ -91,7 +91,7 @@ router.delete('/tasks/:id', authenticate, async (req, res) => {
     try {
         const task = await models.Task.findOneAndDelete({
             _id: req.params.id,
-            author: req['user']._id
+            author: req.user._id
         });
 
         if(!task)

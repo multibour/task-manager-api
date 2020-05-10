@@ -69,12 +69,12 @@ router.get('/users/me', authenticate, async (req, res) => {
 });
 
 router.patch('/users/me', authenticate, async (req, res) => {
-    const isValid = Object.keys(req.body).every(field => ['name', 'email', 'password'].includes(field));
-    if(!isValid)
+    const isValid = Object.keys(req.body).every(field => ['name', 'email', 'password', 'dateOfBirth'].includes(field));
+    if (!isValid)
         return res.status(400).send({ error: 'Invalid update fields.' });
 
     try {
-        const user = req['user'];
+        const user = req.user;
 
         Object.keys(req.body).forEach(key => user[key] = req.body[key]);
 
@@ -88,7 +88,7 @@ router.patch('/users/me', authenticate, async (req, res) => {
 
 router.delete('/users/me', authenticate, async (req, res) => {
     try{
-        const user = req['user'];
+        const user = req.user;
         await user.remove();
 
         emailer.sendRemovalMail(user.email, user.name); // no need to await the promise
@@ -109,7 +109,7 @@ const upload = multer({
     },
     fileFilter(req, file, cb){
         if(!file.originalname.match( /\.(jpg|jpeg|png)$/ )){ // jpg, jpeg or png
-            // this had to be done since I could not find a prettier way to catch the error from multer
+            // this had to be done since I could not find a prettier way to catch an error from multer
             req.fileValidationError = 'Images can only be of extension JPG, JPEG or PNG.';
 
             return cb(null, false);
@@ -120,9 +120,9 @@ const upload = multer({
 
 router.post('/users/me/avatar', authenticate, upload.single('avatar'), async (req, res) => {
     if (req.fileValidationError)
-        return res.status(400).send({error: req.fileValidationError});
+        return res.status(400).send({ error: req.fileValidationError });
 
-    const user = req['user'];
+    const user = req.user;
 
     user.avatar = await sharp(req.file.buffer).resize({
         width: 250,
