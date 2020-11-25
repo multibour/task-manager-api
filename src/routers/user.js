@@ -131,7 +131,7 @@ router.post('/users/me/avatar', authenticate, upload.single('avatar'), async (re
 
     await user.save();
 
-    res.send();
+    res.status(200).send();
 });
 
 router.delete('/users/me/avatar', authenticate, async (req, res) => {
@@ -140,7 +140,7 @@ router.delete('/users/me/avatar', authenticate, async (req, res) => {
     user.avatar = undefined;
     await user.save();
 
-    res.send();
+    res.status(200).send();
 });
 
 router.get('/users/:id/avatar', async (req, res) => {
@@ -151,7 +151,7 @@ router.get('/users/:id/avatar', async (req, res) => {
             throw new Error();
 
         res.set('Content-Type', 'image/png');
-        res.send(user.avatar);
+        res.status(200).send(user.avatar);
     }
     catch (err){
         res.status(500).send();

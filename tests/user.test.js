@@ -23,6 +23,7 @@ beforeEach(async () => {
     await new models.User(sampleUser).save();
 });
 
+
 test('Sign up a new user', async () => {
     const res = await request(app).post('/users').send({
         name: 'Kaan 2',
@@ -76,5 +77,33 @@ test('delete account when not authenticated', async () => {
         .send().expect(401);
 });
 
+test('Upload avatar image', async () => {
+    await request(app).post('/users/me/avatar')
+        .set('Authorization', `Bearer ${sampleUser.tokens[0].token}`)
+        .attach('avatar', './tests/fixtures/test.png')
+        .expect(200);
 
+    const user = await models.User.findById(sampleUserId);
+    expect(user.avatar).toEqual(expect.any(Buffer)); // check if img buffer is saved
+});
 
+test('Change a valid user field', async () => {
+    await request(app).patch('/users/me')
+        .set('Authorization', `Bearer ${sampleUser.tokens[0].token}`)
+        .send({
+            name: 'Test Persona'
+        }).expect(200);
+
+    const user = await models.User.findById(sampleUserId);
+    expect(user.name).toEqual('Test Persona');
+})
+
+test('Change an invalid user field', async () => {
+    const res = await request(app).patch('/users/me')
+        .set('Authorization', `Bearer ${sampleUser.tokens[0].token}`)
+        .send({
+            _id: 0
+        }).expect(400);
+
+    expect(res.body.error).toEqual('Invalid update fields.'); // check if we got the right error
+})
