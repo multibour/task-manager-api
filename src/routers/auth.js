@@ -10,7 +10,7 @@ const auth = async function(req, res, nextFunction){
         });
 
         if(!user)
-            throw new Error('Invalid session.');
+            return res.status(401).send('Invalid session.');
 
         req.user = user;
         req.token = token;

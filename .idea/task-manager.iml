@@ -9,5 +9,6 @@
     <orderEntry type="library" name="@types/bcryptjs" level="application" />
     <orderEntry type="library" name="@types/multer" level="application" />
     <orderEntry type="library" name="@types/sharp" level="application" />
+    <orderEntry type="library" name="@types/supertest" level="application" />
   </component>
 </module>

@@ -28,7 +28,7 @@ router.post('/users/login', async (req, res) => {
     try {
         const user = await models.User.findByCredentials(req.body.email, req.body.password);
         const token = await user.generateAuthenticationToken();
-        res.send({ user, token });
+        res.status(200).send({ user, token });
     }
     catch (err) {
         res.status(400).send(err);
@@ -79,7 +79,7 @@ router.patch('/users/me', authenticate, async (req, res) => {
         Object.keys(req.body).forEach(key => user[key] = req.body[key]);
 
         await user.save();
-        res.send(user);
+        res.status(200).send(user);
     }
     catch(err) {
         res.status(400).send(err);
@@ -93,7 +93,7 @@ router.delete('/users/me', authenticate, async (req, res) => {
 
         emailer.sendRemovalMail(user.email, user.name); // no need to await the promise
 
-        res.send(user);
+        res.status(200).send(user);
     }
     catch(err) {
         res.status(400).send(err);
