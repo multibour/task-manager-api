@@ -39,7 +39,7 @@ router.get('/tasks', authenticate, async (req, res) => {
             skip: parseInt(req.query.skip),
             sort
         });
-        res.send(tasks)
+        res.status(200).send(tasks)
     }
     catch(err){
         res.status(500).send(err)
@@ -56,7 +56,7 @@ router.get('/tasks/:id', authenticate, async (req, res) => {
         if (!task)
             return res.status(404).send();
 
-        res.send(task);
+        res.status(200).send(task);
     }
     catch (err) {
         res.status(500).send();
@@ -80,7 +80,7 @@ router.patch('/tasks/:id', authenticate, async (req, res) => {
         if(!task)
             return res.status(404).send();
 
-        res.send(task);
+        res.status(200).send(task);
     }
     catch(err) {
         res.status(400).send(err)
@@ -97,7 +97,7 @@ router.delete('/tasks/:id', authenticate, async (req, res) => {
         if(!task)
             return res.status(404).send();
 
-        res.send(task);
+        res.status(200).send(task);
     }
     catch (err) {
         res.status(400).send(err)
